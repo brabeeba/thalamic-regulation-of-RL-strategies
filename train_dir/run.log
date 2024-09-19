@@ -1,0 +1,46 @@
+09/19/2024 11:24:38 AM: [ COMMAND: train.py ]
+09/19/2024 11:24:38 AM: Model Training begin with options:
+09/19/2024 11:24:38 AM: train_dir : ./train_dir
+09/19/2024 11:24:38 AM: tensorboard : ./train_dir/tensorboard
+09/19/2024 11:24:38 AM: log_file : ./train_dir/run.log
+09/19/2024 11:24:38 AM: no_cuda : False
+09/19/2024 11:24:38 AM: gpu : 0
+09/19/2024 11:24:38 AM: random_seed : 123
+09/19/2024 11:24:38 AM: context_num : 2
+09/19/2024 11:24:38 AM: stimuli_num : 2
+09/19/2024 11:24:38 AM: class_num : 2
+09/19/2024 11:24:38 AM: block_size : 25
+09/19/2024 11:24:38 AM: max_trial : 50
+09/19/2024 11:24:38 AM: logging_interval : 1
+09/19/2024 11:24:38 AM: dt : 0.005
+09/19/2024 11:24:38 AM: experiment_num : 2
+09/19/2024 11:24:38 AM: cuda : False
+09/19/2024 11:24:38 AM: Model parameter is the following:
+09/19/2024 11:24:38 AM: gamma1: 0.99
+09/19/2024 11:24:38 AM: gamma2: 0.8
+09/19/2024 11:24:38 AM: lr: 0.1
+09/19/2024 11:24:38 AM: temperature: 25
+09/19/2024 11:24:38 AM: tau: 1
+09/19/2024 11:24:38 AM: a: 1
+09/19/2024 11:24:38 AM: gamma: 0.93
+09/19/2024 11:24:38 AM: iter: 40
+09/19/2024 11:24:38 AM: learning: True
+09/19/2024 11:24:38 AM: nonlinear: True
+09/19/2024 11:24:38 AM: inhibit: False
+09/19/2024 11:24:38 AM: d2: False
+09/19/2024 11:24:38 AM: rescue: False
+09/19/2024 11:24:38 AM: quantile_num: 100
+09/19/2024 11:24:38 AM: N: 500
+09/19/2024 11:24:38 AM: K: 3
+09/19/2024 11:24:38 AM: b: 1
+09/19/2024 11:24:38 AM: a1: 0.75
+09/19/2024 11:24:38 AM: b1: 1
+09/19/2024 11:24:38 AM: a2: 1
+09/19/2024 11:24:38 AM: b2: 1
+09/19/2024 11:24:38 AM: tau1: 10
+09/19/2024 11:24:38 AM: eta: 0.5
+09/19/2024 11:24:38 AM: threshold: 3
+09/19/2024 11:24:38 AM: d_interval: 1000
+09/19/2024 11:24:38 AM: scan_interval: 50
+09/19/2024 11:24:40 AM: Reach the last trial at trial 50
+09/19/2024 11:24:42 AM: Reach the last trial at trial 50
