@@ -1,5 +1,4 @@
 # Code for "Thalamic regulation of reinforcement learning strategies across prefrontal-striatal networks"
-DOI: TODO
 
 ## Installation
 The code has been tested on python 3.12.3. It is highly recommended to use virtual environment to install the package. 
@@ -9,7 +8,7 @@ To install all the dependency, we recommend to use pip to install. This process 
 >pip install -r requirements.txt
 
 ## Data Availability
-To run the code, please download the corresponding dataset deposited at Mendeley. The DOI is TODO
+To run the code, please download the corresponding dataset deposited at Mendeley. The DOI is 10.17632/2jbbvcdwy7.1
 
 ## Inspect the dataset
 Neural activity dataset is stored via pickle.dump. The name of the dataset for experiment is experiment1_data. To load the dataset, simply use load_dict from util.py.
