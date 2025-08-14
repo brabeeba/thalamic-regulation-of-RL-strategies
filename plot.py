@@ -268,7 +268,7 @@ def plot(num):
 
 
 
-
+		excel_list = []
 
 
 
@@ -285,11 +285,13 @@ def plot(num):
 		df["y"] = scipy.stats.zscore(score)
 		sns.regplot(df, x = "x", y = "y", line_kws=dict(color="r"))
 		res = scipy.stats.permutation_test((context_score, score), lambda x, y: scipy.stats.pearsonr(x, y).statistic, n_resamples=10000)
-		print("{}, {}".format(res.statistic, res.pvalue))
+		print("6c: {}, {}".format(res.statistic, res.pvalue))
 		sns.despine()
 		plt.savefig("fig/experiment{}_posterior_ratio.pdf".format(num), transparent = True)
 		plt.close()
 
+		excel_list.append(df)
+	
 		
 
 
@@ -330,6 +332,9 @@ def plot(num):
 		
 		t_a = np.arange(36) - 10
 
+		df_list = []
+		
+
 		for i, a in enumerate(idx_name):
 			
 
@@ -342,10 +347,23 @@ def plot(num):
 			accuracy[:, :25][(action[:, :25] - stimuli[:, :25]) == 0] = 1
 			accuracy[:, 25:][(action[:, 25:] - stimuli[:, 25:]) != 0] = 1
 
+			n, m = accuracy[:, 14:50].shape
+			
+			sessions = np.repeat(np.arange(n), m)
+			trials = np.tile(t_a, n)
+			df = pd.DataFrame()
+			df['session'] = sessions
+			df['trial'] = trials
+			df['correct'] = accuracy[:, 14:50].flatten()
+			df['type'] = [a] * (n*m)
+			df_list.append(df)
+
+
 			accuracy_data = np.mean(accuracy[:, 14:50], axis = 0)
 			ci =  np.std(accuracy[:, 14:50], axis = 0) / np.sqrt(accuracy[:, 15:50].shape[0])
 			
 			plt.plot(t_a, accuracy_data, label = a, c = palette[i])
+
 			plt.fill_between(t_a, accuracy_data + ci, accuracy_data - ci, color = palette[i], alpha = 0.1)
 		
 		
@@ -360,6 +378,60 @@ def plot(num):
 		sns.despine()
 		plt.savefig("fig/experiment{}_action.pdf".format(num), transparent = True)
 		plt.close()
+
+		df = pd.concat(df_list, ignore_index=True)
+		excel_list.append(df)
+
+
+		ratio = 0.8
+		fig, ax = plt.subplots()
+		fig.set_figwidth(4.8 * ratio)
+		fig.set_figheight(4.8 * ratio)
+
+		df_list = []
+		
+		accuracy_data = []
+		for i, a in enumerate(idx_name):
+			
+
+			action = data["action"][agents[0]][idx_list[i]]
+			stimuli = data["stimuli"][agents[0]][idx_list[i]]
+
+			accuracy = np.zeros(action.shape)
+
+
+			accuracy[:, :25][(action[:, :25] - stimuli[:, :25]) == 0] = 1
+			accuracy[:, 25:][(action[:, 25:] - stimuli[:, 25:]) != 0] = 1
+
+			
+			accuracy_data.append(np.mean(accuracy[:, 15:25], axis = 0))
+
+		df1 = pd.DataFrame()
+		df1['accuracy'] = accuracy_data[0]
+		df1['type'] = idx_name[0]
+
+		df2 = pd.DataFrame()
+		df2['accuracy'] = accuracy_data[1]
+		df2['type'] = idx_name[1]
+
+		df = pd.concat([df1, df2], ignore_index=True)
+		excel_list.append(df)
+		
+		ax.boxplot(accuracy_data, sym = '', widths = 0.7, showcaps = False, 
+	                     vert=True,  # vertical box alignment
+	                     labels=idx_name)  # will be used to label x-ticks
+		
+		sns.despine()
+		plt.legend(loc="upper left", frameon=False)
+		plt.savefig("fig/experiment{}_SS_accuracy_MB_vs_MF.pdf".format(num), transparent = True)
+		plt.close()
+
+		z, p = scipy.stats.mannwhitneyu(accuracy_data[0], accuracy_data[1])
+		print("6j: The p value of two-way rank sum test on accuracy of the SS is {}".format(p))
+		print("accuracy of the SS for {} = {}, sem = {}, data number = {}".format(idx_name[0], np.mean(accuracy_data[0]), np.std(accuracy_data[0]) / np.sqrt(len(accuracy_data[0])), len(accuracy_data[0])))
+		print("accuracy of the SS for {} = {}, sem = {}, data number = {}".format(idx_name[1],  np.mean(accuracy_data[1]), np.std(accuracy_data[1]) / np.sqrt(len(accuracy_data[1])), len(accuracy_data[1])))
+
+			
 
 
 		ratio = 0.8
@@ -556,14 +628,29 @@ def plot(num):
 		ax.boxplot(md_data, sym = '', widths = 0.7, showcaps = False, 
 	                     vert=True,  # vertical box alignment
 	                     labels=context_label)  # will be used to label x-ticks
+
+
 		plt.ylabel("MD activity tuned to new context")
 		sns.despine()
 		plt.legend(loc="upper left", frameon=False)
 		plt.savefig("fig/experiment{}_md_context_tuning.pdf".format(num), transparent = True)
 		plt.close()
 
+		df1 = pd.DataFrame()
+		df1['MD activity'] = md_data[0]
+		df1['type'] = context_label[0]
+
+		df2 = pd.DataFrame()
+		df2['MD activity'] = md_data[1]
+		df2['type'] = context_label[1]
+
+		df = pd.concat([df1, df2], ignore_index=True)
+		excel_list.append(df)
+
+
+
 		z, p = scipy.stats.mannwhitneyu(md_data[0], md_data[1])
-		print("The p value of two-way rank sum test on the MD activity tuned to new context is {}".format(p))
+		print("6b: The p value of two-way rank sum test on the MD activity tuned to new context is {}".format(p))
 		print("MD activity tuned to new context for {} = {}, sem = {}".format(context_label[0], np.mean(md_data[0]), np.std(md_data[0]) / np.sqrt(len(md_data[0]))))
 		print("MD activity tuned to new context for {} = {}, sem = {}".format(context_label[1],  np.mean(md_data[1]), np.std(md_data[1]) / np.sqrt(len(md_data[1]))))
 
@@ -591,8 +678,19 @@ def plot(num):
 		plt.savefig("fig/experiment{}_correct-incorrect_value.pdf".format(num), transparent = True)
 		plt.close()
 
+		df1 = pd.DataFrame()
+		df1['value_diff'] = diff_data[0]
+		df1['type'] = idx_name[1]
+
+		df2 = pd.DataFrame()
+		df2['value_diff'] = diff_data[1]
+		df2['type'] = idx_name[0]
+
+		df = pd.concat([df1, df2], ignore_index=True)
+		excel_list.append(df)
+
 		z, p = scipy.stats.mannwhitneyu(diff_data[0], diff_data[1])
-		print("The p value of two-way rank sum test on the Value (Go - NoGo | Cue 1 is {}".format(p))
+		print("6i: The p value of two-way rank sum test on the Value (Go - NoGo | Cue 1 is {}".format(p))
 		print("Value (Go - NoGo | Cue 1 for {} = {}, sem = {}".format(idx_name[1], np.mean(diff_data[0]), np.std(diff_data[0]) / np.sqrt(len(diff_data[0]))))
 		print("Value (Go - NoGo | Cue 1 for {} = {}, sem = {}".format(idx_name[0],  np.mean(diff_data[1]), np.std(diff_data[1]) / np.sqrt(len(diff_data[1]))))
 
@@ -633,7 +731,8 @@ def plot(num):
 
 
 		
-
+		md_df_list = []
+		value_df_list = []
 
 
 		for i, a in enumerate(idx_name):
@@ -686,6 +785,35 @@ def plot(num):
 			sns.despine()
 			plt.savefig("fig/experiment{}_md_activities_{}.pdf".format(num,a))
 			plt.close()
+
+			df0 = pd.DataFrame()
+
+			n, m = md0[:, 5:45].shape
+			sessions = np.repeat(np.arange(n), m)
+			trials = np.tile(t[:40]-20, n)
+
+			df0['Trial'] = trials
+			df0['MD activity'] = md0[:, 5:45].flatten()
+			df0['sessions'] = sessions
+			df0['Context'] = 1
+			df0['type'] = a
+
+
+			df1 = pd.DataFrame()
+			n, m = md1[:, 5:45].shape
+			sessions = np.repeat(np.arange(n), m)
+			trials = np.tile(t[:40]-20, n)
+
+			df1['Trial'] = trials
+			df1['MD activity'] = md1[:, 5:45].flatten()
+			df1['sessions'] = sessions
+			df1['Context'] = 2
+			df1['type'] = a
+
+
+			md_df_list.append(pd.concat([df0, df1], ignore_index = True))
+
+
 
 
 
@@ -838,13 +966,13 @@ def plot(num):
 			width_patch = [mlines.Line2D([], [], color = "grey",linewidth=width[i], label="Context {}".format(i+1)) for i in range(2)]
 			legend_width = fig.legend(handles = width_patch, frameon = False, bbox_to_anchor=(0.18, 1), loc="upper left")
 	
-			
+			v_df_list = []
 			for k in range(2):
 				for s in range(1):
 					for j in range(2):
 
 						value = np.vstack([ x["ALM/BG"] for x in data["histogram"][agents[0]]]).reshape(max_episode, max_trial, scan_num, context_num, stimuli_num, class_num)[idx_list[i], :, -1, :, :, :]
-		
+						
 						
 						if j == 0:
 							value_data = np.mean(value, axis = 0)[:, k, s, j]
@@ -858,7 +986,22 @@ def plot(num):
 							ci =  np.std(value[:, :, k, s, j], axis = 0) / np.sqrt(value[:, :, k, s, j].shape[0])
 							ax.plot(t[:40]-20,  value_data[5:45], label = "Thalamocortical Model {} Action {}".format(k+1, j+1), c = palette[i], linewidth = width[k], linestyle = "dashed")
 							ax.fill_between(t[:40]-20, (value_data + ci)[5:45], (value_data - ci)[5:45], color = palette[i], alpha = 0.1)
-				
+						
+						df = pd.DataFrame()
+
+						n, m = value[:, 5:45, k, s, j].shape
+						sessions = np.repeat(np.arange(n), m)
+						trials = np.tile(t[:40]-20, n)
+
+						df['Trial'] = trials
+						df['value'] = value[:, 5:45, k, s, j].flatten()
+						df['sessions'] = sessions
+						df['Context'] = k+1
+						df['action'] = j
+						df['type'] = a
+						v_df_list.append(df)
+
+			value_df_list.append(pd.concat(v_df_list, ignore_index = True))
 			line_patch = [mlines.Line2D([], [],color="grey", label=i, linestyle = t) for i, t in [("Left", "solid"), ("Right", "dashed")]]
 
 	
@@ -910,6 +1053,19 @@ def plot(num):
 			sns.despine()
 			plt.savefig("fig/experiment{}_model_{}.pdf".format(num, a))
 			plt.close()
+
+
+		with pd.ExcelWriter("output.xlsx", engine="openpyxl") as writer:
+			excel_list[0].to_excel(writer, sheet_name="6c", index=False)
+			excel_list[1].to_excel(writer, sheet_name="6d", index=False)
+			excel_list[2].to_excel(writer, sheet_name="6j", index=False)
+			excel_list[3].to_excel(writer, sheet_name="6b", index=False)
+			excel_list[4].to_excel(writer, sheet_name="6i", index=False)
+			pd.concat(md_df_list, ignore_index = True).to_excel(writer, sheet_name="6f", index=False)
+			pd.concat(value_df_list, ignore_index = True).to_excel(writer, sheet_name="6g", index=False)
+
+
+
 
 	
 

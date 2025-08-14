@@ -12,6 +12,7 @@ import scikit_posthocs as sp
 import seaborn as sns
 import pandas as pd
 from sklearn.linear_model import ridge_regression
+from openpyxl import load_workbook
 
 # def ridge_regression(X, Y, mask):
 # 	input_dim = X.shape[1]
@@ -49,7 +50,7 @@ palette_alt = sns.color_palette("Set2")
 palette_gradient = sns.color_palette("rocket")
 
 
-data = load_dict("experiment{}_data".format(2))
+data = load_dict("experiment{}_data".format(1))
 agents = list(data["action"].keys())
 switch = len(data["switch"][agents[0]][0])
 max_trial = len(data["action"][agents[0]][0])
@@ -217,6 +218,9 @@ for i in range(mf_df_x.shape[0]):
 	cortico = np.concatenate([OFC_to_PFC, PFC_to_OFC], axis = 0) * (mf_df_y[i, :, :14]/ np.linalg.norm(mf_df_y[i, :, :14], axis = 1, keepdims=True)).T
 
 	mf_cortico.append(np.sum(cortico))
+
+df_list = []
+
 ratio = 0.8
 fig, ax = plt.subplots()
 fig.set_figwidth(5.5 * ratio)
@@ -227,6 +231,19 @@ cortico_data = [steady_cortico, mf_cortico, mb_cortico]
 label = ["SS", "MF", "MB"]
 t = range(3)
 
+df1 = pd.DataFrame()
+df1['cortico_connectivity'] = cortico_data[0]
+df1['type'] = label[0]
+
+df2 = pd.DataFrame()
+df2['cortico_connectivity'] = cortico_data[1]
+df2['type'] = label[1]
+
+df3 = pd.DataFrame()
+df3['cortico_connectivity'] = cortico_data[2]
+df3['type'] = label[2]
+
+df_list.append(pd.concat([df1, df2, df3], ignore_index = True))
 
 error_bar =  [ np.std(data) / np.sqrt(len(data)) for data in cortico_data]
 mean = [ np.mean(data) for data in cortico_data]
@@ -300,6 +317,21 @@ fig.set_figheight(4.8 * ratio)
 thalamo_data = [steady_thalamo, mf_thalamo, mb_thalamo]
 label = ["SS", "MF", "MB"]
 t = range(3)
+
+
+df1 = pd.DataFrame()
+df1['thalamocortical_connectivity'] = thalamo_data[0]
+df1['type'] = label[0]
+
+df2 = pd.DataFrame()
+df2['thalamocortical_connectivity'] = thalamo_data[1]
+df2['type'] = label[1]
+
+df3 = pd.DataFrame()
+df3['thalamocortical_connectivity'] = thalamo_data[2]
+df3['type'] = label[2]
+
+df_list.append(pd.concat([df1, df2, df3], ignore_index = True))
 
 
 error_bar =  [ np.std(data) / np.sqrt(len(data)) for data in thalamo_data]
@@ -377,11 +409,35 @@ plt.savefig("fig/cortico_connectivity_matrix.pdf", transparent = True)
 
 
 
+file_path = "output.xlsx"
 
+# Load existing workbook
+book = load_workbook(file_path)
 
+if "6e-l" in book.sheetnames:
+	std = book["6e-l"]
+	book.remove(std)
+if "6e-r" in book.sheetnames:
+	std = book["6e-r"]
+	book.remove(std)
 
+sheet1 = book.create_sheet("6e-l")
+for r_idx, row in enumerate(df1.itertuples(index=False), start=2):
+	for c_idx, value in enumerate(row, start=1):
+		sheet1.cell(row=r_idx, column=c_idx, value=value)
+# Write header
+for c_idx, col_name in enumerate(df1.columns, start=1):
+	sheet1.cell(row=1, column=c_idx, value=col_name)
 
+# Add second sheet
+sheet2 = book.create_sheet("6e-r")
+for r_idx, row in enumerate(df2.itertuples(index=False), start=2):
+	for c_idx, value in enumerate(row, start=1):
+		sheet2.cell(row=r_idx, column=c_idx, value=value)
+for c_idx, col_name in enumerate(df2.columns, start=1):
+	sheet2.cell(row=1, column=c_idx, value=col_name)
 
-
+# Save the workbook
+book.save(file_path)
 
 

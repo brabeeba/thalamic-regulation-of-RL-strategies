@@ -42,7 +42,8 @@ def model_parameter(opt, model_num):
 
 	new_opt = {}
 
-	if model_num == 1:
+	if model_num == 1
+	:
 		new_opt["gamma1"] = 0.99
 		new_opt["gamma2"] = 0.8
 		new_opt["lr"] = 0.1

@@ -2,3 +2,4 @@ env/
 Logfile_RL_GoNoGO/
 experiment*_data*
 fig/
+*.xlsx
